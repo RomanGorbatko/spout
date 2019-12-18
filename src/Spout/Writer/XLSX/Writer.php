@@ -2,6 +2,7 @@
 
 namespace Box\Spout\Writer\XLSX;
 
+use Box\Spout\Common\Entity\Columns;
 use Box\Spout\Writer\Common\Entity\Options;
 use Box\Spout\Writer\WriterMultiSheetsAbstract;
 

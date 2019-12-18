@@ -2,6 +2,7 @@
 
 namespace Box\Spout\Writer\XLSX\Creator;
 
+use Box\Spout\Common\Entity\Columns;
 use Box\Spout\Common\Manager\OptionsManagerInterface;
 use Box\Spout\Writer\Common\Creator\InternalEntityFactory;
 use Box\Spout\Writer\Common\Creator\ManagerFactoryInterface;
@@ -28,13 +29,20 @@ class ManagerFactory implements ManagerFactoryInterface
     protected $helperFactory;
 
     /**
+     * @var Columns|null
+     */
+    private $columns;
+
+    /**
      * @param InternalEntityFactory $entityFactory
      * @param HelperFactory $helperFactory
+     * @param Columns|null $columns
      */
-    public function __construct(InternalEntityFactory $entityFactory, HelperFactory $helperFactory)
+    public function __construct(InternalEntityFactory $entityFactory, HelperFactory $helperFactory, Columns $columns = null)
     {
         $this->entityFactory = $entityFactory;
         $this->helperFactory = $helperFactory;
+        $this->columns = $columns;
     }
 
     /**
@@ -92,7 +100,8 @@ class ManagerFactory implements ManagerFactoryInterface
             $sharedStringsManager,
             $stringsEscaper,
             $stringsHelper,
-            $this->entityFactory
+            $this->entityFactory,
+            $this->columns
         );
     }
 
