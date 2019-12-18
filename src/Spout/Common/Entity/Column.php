@@ -4,6 +4,8 @@
 namespace Box\Spout\Common\Entity;
 
 
+use Box\Spout\Writer\XLSX\Manager\OptionsManager;
+
 /**
  * Class Column
  * @package Box\Spout\Common\Entity
@@ -167,9 +169,9 @@ class Column
      */
     public function calculateMaxColumnWidth()
     {
-        $fontSize = 14;
-        $padding = 5;
         $additionalCoefficient = 2;
+        $fontSize = OptionsManager::DEFAULT_FONT_SIZE + $additionalCoefficient;
+        $padding = 5;
 
         //[8*7+5]/7*256)/256
         return (((($this->getWidth() + $additionalCoefficient) * $fontSize) + $padding) / $fontSize);
