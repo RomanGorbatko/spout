@@ -3,6 +3,7 @@
 namespace Box\Spout\Writer\Common\Creator;
 
 use Box\Spout\Common\Creator\HelperFactory;
+use Box\Spout\Common\Entity\Columns;
 use Box\Spout\Common\Exception\UnsupportedTypeException;
 use Box\Spout\Common\Helper\GlobalFunctionsHelper;
 use Box\Spout\Common\Type;
@@ -44,14 +45,15 @@ class WriterFactory
      * This creates an instance of the appropriate writer, given the type of the file to be written
      *
      * @param string $writerType Type of the writer to instantiate
-     * @throws \Box\Spout\Common\Exception\UnsupportedTypeException
+     * @param Columns|null $columns
      * @return WriterInterface
+     * @throws UnsupportedTypeException
      */
-    public static function createFromType($writerType)
+    public static function createFromType($writerType, Columns $columns = null)
     {
         switch ($writerType) {
             case Type::CSV: return self::createCSVWriter();
-            case Type::XLSX: return self::createXLSXWriter();
+            case Type::XLSX: return self::createXLSXWriter($columns);
             case Type::ODS: return self::createODSWriter();
             default:
                 throw new UnsupportedTypeException('No writers supporting the given type: ' . $writerType);
@@ -72,16 +74,17 @@ class WriterFactory
     }
 
     /**
+     * @param Columns|null $columns
      * @return XLSXWriter
      */
-    private static function createXLSXWriter()
+    private static function createXLSXWriter(Columns $columns = null)
     {
         $styleBuilder = new StyleBuilder();
         $optionsManager = new XLSXOptionsManager($styleBuilder);
         $globalFunctionsHelper = new GlobalFunctionsHelper();
 
         $helperFactory = new XLSXHelperFactory();
-        $managerFactory = new XLSXManagerFactory(new InternalEntityFactory(), $helperFactory);
+        $managerFactory = new XLSXManagerFactory(new InternalEntityFactory(), $helperFactory, $columns);
 
         return new XLSXWriter($optionsManager, $globalFunctionsHelper, $helperFactory, $managerFactory);
     }

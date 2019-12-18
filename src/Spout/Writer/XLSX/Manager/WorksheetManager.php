@@ -3,6 +3,8 @@
 namespace Box\Spout\Writer\XLSX\Manager;
 
 use Box\Spout\Common\Entity\Cell;
+use Box\Spout\Common\Entity\Column;
+use Box\Spout\Common\Entity\Columns;
 use Box\Spout\Common\Entity\Row;
 use Box\Spout\Common\Entity\Style\Style;
 use Box\Spout\Common\Exception\InvalidArgumentException;
@@ -63,6 +65,11 @@ EOD;
     private $entityFactory;
 
     /**
+     * @var Columns|null
+     */
+    private $columns;
+
+    /**
      * WorksheetManager constructor.
      *
      * @param OptionsManagerInterface $optionsManager
@@ -73,6 +80,7 @@ EOD;
      * @param XLSXEscaper $stringsEscaper
      * @param StringHelper $stringHelper
      * @param InternalEntityFactory $entityFactory
+     * @param Columns|null $columns
      */
     public function __construct(
         OptionsManagerInterface $optionsManager,
@@ -82,7 +90,8 @@ EOD;
         SharedStringsManager $sharedStringsManager,
         XLSXEscaper $stringsEscaper,
         StringHelper $stringHelper,
-        InternalEntityFactory $entityFactory
+        InternalEntityFactory $entityFactory,
+        Columns $columns = null
     ) {
         $this->shouldUseInlineStrings = $optionsManager->getOption(Options::SHOULD_USE_INLINE_STRINGS);
         $this->rowManager = $rowManager;
@@ -92,6 +101,7 @@ EOD;
         $this->stringsEscaper = $stringsEscaper;
         $this->stringHelper = $stringHelper;
         $this->entityFactory = $entityFactory;
+        $this->columns = $columns;
     }
 
     /**
@@ -208,6 +218,16 @@ EOD;
      */
     private function getCellXML($rowIndexOneBased, $columnIndexZeroBased, Cell $cell, $styleId)
     {
+        $columnIndex = ($columnIndexZeroBased + 1) . ':' . ($columnIndexZeroBased + 1);
+
+        if ($this->columns !== null && $this->columns->hasByIndex($columnIndex)) {
+            $column = $this->columns->getByIndex($columnIndex);
+
+            if ($column->isAutoWidth() && $cell->getValue()) {
+                $column->increaseColumnWidth((string) $cell->getValue());
+            }
+        }
+
         $columnLetters = CellHelper::getColumnLettersFromColumnIndex($columnIndexZeroBased);
         $cellXML = '<c r="' . $columnLetters . $rowIndexOneBased . '"';
         $cellXML .= ' s="' . $styleId . '"';
@@ -260,6 +280,23 @@ EOD;
     }
 
     /**
+     * @return string
+     */
+    protected function buildColumnsXML(): string
+    {
+        $columnsXml = '<cols>';
+
+        /** @var Column $column */
+        foreach ($this->columns->getAll() as $column) {
+            $columnsXml .= '<col min="' . $column->getMin() . '" max="' . $column->getMax() . '" width="' . $column->calculateMaxColumnWidth() . '" />';
+        }
+
+        $columnsXml .= '</cols>';
+
+        return $columnsXml;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function close(Worksheet $worksheet)
@@ -271,6 +308,13 @@ EOD;
         }
 
         \fwrite($worksheetFilePointer, '</sheetData>');
+
+        if ($this->columns !== null && $this->columns->count()) {
+            $columnsXml = $this->buildColumnsXML();
+
+            \fwrite($worksheetFilePointer, $columnsXml);
+        }
+
         \fwrite($worksheetFilePointer, '</worksheet>');
         \fclose($worksheetFilePointer);
     }
