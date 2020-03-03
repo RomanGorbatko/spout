@@ -37,7 +37,26 @@ class WorksheetManager implements WorksheetManagerInterface
 
     const SHEET_XML_FILE_HEADER = <<<'EOD'
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<worksheet
+    xml:space="preserve"
+    xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+    xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
+    xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="x14ac"
+    xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac"
+    >
+    <sheetPr>
+        <outlinePr summaryBelow="1" summaryRight="1"/>
+    </sheetPr>
+    <dimension ref="A1:G320"/>
+    <sheetViews>
+        <sheetView tabSelected="1" workbookViewId="0" showGridLines="true" showRowColHeaders="1">
+            <selection activeCell="A1" sqref="A1:XFD1"/>
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="14.4" outlineLevelRow="0" outlineLevelCol="0"/>
 EOD;
 
     /** @var bool Whether inline or shared strings should be used */
@@ -288,7 +307,7 @@ EOD;
 
         /** @var Column $column */
         foreach ($this->columns->getAll() as $column) {
-            $columnsXml .= '<col min="' . $column->getMin() . '" max="' . $column->getMax() . '" width="' . $column->calculateMaxColumnWidth() . '" />';
+            $columnsXml .= '<col min="' . $column->getMin() . '" max="' . $column->getMax() . '" width="' . $column->calculateMaxColumnWidth() . '" bestFit="true" customWidth="true" style="0" />';
         }
 
         $columnsXml .= '</cols>';
@@ -316,6 +335,9 @@ EOD;
         }
 
         \fwrite($worksheetFilePointer, '</worksheet>');
+
+//        dump(file_get_contents(stream_get_meta_data($worksheetFilePointer)['uri']));
+
         \fclose($worksheetFilePointer);
     }
 }
