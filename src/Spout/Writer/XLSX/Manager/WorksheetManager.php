@@ -261,13 +261,14 @@ EOD;
             // only writes the error value if it's a string
             $cellXML .= ' t="e"><v>' . $cell->getValueEvenIfError() . '</v></c>';
         } elseif ($cell->isEmpty()) {
-            if ($this->styleManager->shouldApplyStyleOnEmptyCell($styleId)) {
-                $cellXML .= '/>';
-            } else {
-                // don't write empty cells that do no need styling
-                // NOTE: not appending to $cellXML is the right behavior!!
-                $cellXML = '';
-            }
+            $cellXML .= '/>';
+//            if ($this->styleManager->shouldApplyStyleOnEmptyCell($styleId)) {
+//                $cellXML .= '/>';
+//            } else {
+//                // don't write empty cells that do no need styling
+//                // NOTE: not appending to $cellXML is the right behavior!!
+//                $cellXML = '';
+//            }
         } else {
             throw new InvalidArgumentException('Trying to add a value with an unsupported type: ' . \gettype($cell->getValue()));
         }
