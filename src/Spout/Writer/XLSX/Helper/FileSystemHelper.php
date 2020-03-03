@@ -14,7 +14,7 @@ use Box\Spout\Writer\XLSX\Manager\Style\StyleManager;
  */
 class FileSystemHelper extends \Box\Spout\Common\Helper\FileSystemHelper implements FileSystemWithRootFolderHelperInterface
 {
-    const APP_NAME = 'Spout';
+    const APP_NAME = 'Microsoft Excel';
 
     const RELS_FOLDER_NAME = '_rels';
     const DOC_PROPS_FOLDER_NAME = 'docProps';
@@ -181,9 +181,35 @@ EOD;
         $appName = self::APP_NAME;
         $appXmlFileContents = <<<EOD
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
+<Properties
+    xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
+    xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
     <Application>$appName</Application>
-    <TotalTime>0</TotalTime>
+    <DocSecurity>0</DocSecurity>
+    <ScaleCrop>false</ScaleCrop>
+    <HeadingPairs>
+        <vt:vector size="2" baseType="variant">
+            <vt:variant>
+                <vt:lpstr>Worksheets</vt:lpstr>
+            </vt:variant>
+            <vt:variant>
+                <vt:i4>1</vt:i4>
+            </vt:variant>
+        </vt:vector>
+    </HeadingPairs>
+    <TitlesOfParts>
+        <vt:vector size="1" baseType="lpstr">
+            <vt:lpstr>Worksheet</vt:lpstr>
+        </vt:vector>
+    </TitlesOfParts>
+    <Company>Microsoft Corporation</Company>
+    <Manager>
+
+    </Manager>
+    <LinksUpToDate>false</LinksUpToDate>
+    <SharedDoc>false</SharedDoc>
+    <HyperlinksChanged>false</HyperlinksChanged>
+    <AppVersion>12.0000</AppVersion>
 </Properties>
 EOD;
 
@@ -203,10 +229,21 @@ EOD;
         $createdDate = (new \DateTime())->format(\DateTime::W3C);
         $coreXmlFileContents = <<<EOD
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<cp:coreProperties
+        xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:dcterms="http://purl.org/dc/terms/"
+        xmlns:dcmitype="http://purl.org/dc/dcmitype/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <dc:creator>Unknown Creator</dc:creator>
+    <cp:lastModifiedBy>Unknown Creator</cp:lastModifiedBy>
     <dcterms:created xsi:type="dcterms:W3CDTF">$createdDate</dcterms:created>
     <dcterms:modified xsi:type="dcterms:W3CDTF">$createdDate</dcterms:modified>
-    <cp:revision>0</cp:revision>
+    <dc:title>Untitled Spreadsheet</dc:title>
+    <dc:description></dc:description>
+    <dc:subject></dc:subject>
+    <cp:keywords></cp:keywords>
+    <cp:category></cp:category>
 </cp:coreProperties>
 EOD;
 
@@ -268,6 +305,7 @@ EOD;
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
     <Default ContentType="application/xml" Extension="xml"/>
+    <Default Extension="vml" ContentType="application/vnd.openxmlformats-officedocument.vmlDrawing"/>
     <Default ContentType="application/vnd.openxmlformats-package.relationships+xml" Extension="rels"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
 EOD;
