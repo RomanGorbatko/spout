@@ -142,6 +142,13 @@ EOD;
         $worksheet->setFilePointer($sheetFilePointer);
 
         \fwrite($sheetFilePointer, self::SHEET_XML_FILE_HEADER);
+
+        if ($this->columns !== null && $this->columns->count()) {
+            $columnsXml = $this->buildColumnsXML();
+
+            \fwrite($sheetFilePointer, $columnsXml);
+        }
+
         \fwrite($sheetFilePointer, '<sheetData>');
     }
 
@@ -237,15 +244,15 @@ EOD;
      */
     private function getCellXML($rowIndexOneBased, $columnIndexZeroBased, Cell $cell, $styleId)
     {
-        $columnIndex = ($columnIndexZeroBased + 1) . ':' . ($columnIndexZeroBased + 1);
+//        $columnIndex = ($columnIndexZeroBased + 1) . ':' . ($columnIndexZeroBased + 1);
 
-        if ($this->columns !== null && $this->columns->hasByIndex($columnIndex)) {
-            $column = $this->columns->getByIndex($columnIndex);
-
-            if ($column->isAutoWidth() && $cell->getValue()) {
-                $column->increaseColumnWidth((string) $cell->getValue());
-            }
-        }
+//        if ($this->columns !== null && $this->columns->hasByIndex($columnIndex)) {
+//            $column = $this->columns->getByIndex($columnIndex);
+//
+//            if ($column->isAutoWidth() && $cell->getValue()) {
+//                $column->increaseColumnWidth((string) $cell->getValue());
+//            }
+//        }
 
         $columnLetters = CellHelper::getColumnLettersFromColumnIndex($columnIndexZeroBased);
         $cellXML = '<c r="' . $columnLetters . $rowIndexOneBased . '"';
@@ -261,14 +268,13 @@ EOD;
             // only writes the error value if it's a string
             $cellXML .= ' t="e"><v>' . $cell->getValueEvenIfError() . '</v></c>';
         } elseif ($cell->isEmpty()) {
-            $cellXML .= '/>';
-//            if ($this->styleManager->shouldApplyStyleOnEmptyCell($styleId)) {
-//                $cellXML .= '/>';
-//            } else {
-//                // don't write empty cells that do no need styling
-//                // NOTE: not appending to $cellXML is the right behavior!!
-//                $cellXML = '';
-//            }
+            if ($this->styleManager->shouldApplyStyleOnEmptyCell($styleId)) {
+                $cellXML .= '/>';
+            } else {
+                // don't write empty cells that do no need styling
+                // NOTE: not appending to $cellXML is the right behavior!!
+                $cellXML = '';
+            }
         } else {
             throw new InvalidArgumentException('Trying to add a value with an unsupported type: ' . \gettype($cell->getValue()));
         }
@@ -328,13 +334,6 @@ EOD;
         }
 
         \fwrite($worksheetFilePointer, '</sheetData>');
-
-        if ($this->columns !== null && $this->columns->count()) {
-            $columnsXml = $this->buildColumnsXML();
-
-            \fwrite($worksheetFilePointer, $columnsXml);
-        }
-
         \fwrite($worksheetFilePointer, '</worksheet>');
 
 //        dump(file_get_contents(stream_get_meta_data($worksheetFilePointer)['uri']));

@@ -13,6 +13,8 @@ use Box\Spout\Writer\XLSX\Manager\OptionsManager;
 class Column
 {
     const DEFAULT_COLUMN_WIDTH = 9.10;
+    const MEDIUM_COLUMN_WIDTH = self::DEFAULT_COLUMN_WIDTH * 2;
+    const LARGE_COLUMN_WIDTH = self::DEFAULT_COLUMN_WIDTH * 4;
 
     /**
      * @var int
